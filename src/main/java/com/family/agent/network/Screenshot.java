@@ -65,6 +65,7 @@ public class Screenshot extends Thread {
 				catch(Exception e)
 				{
 					e.printStackTrace();
+					break;
 				}
 			}
 		}
