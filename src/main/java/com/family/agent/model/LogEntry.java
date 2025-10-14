@@ -32,4 +32,8 @@ public class LogEntry {
         System.out.printf("[%s] %s | %s → %s%n",
                 type, name, startTime, endTime);
     }
+    public String toString()
+    {
+        return type + "|" + name + "|" + startTime + "|" + endTime;
+    }
 }
