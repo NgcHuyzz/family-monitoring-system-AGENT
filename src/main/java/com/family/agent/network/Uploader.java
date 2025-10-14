@@ -17,6 +17,10 @@ public class Uploader extends Thread {
 			// gui hinh anh
 			Screenshot s = new Screenshot(soc, 3000);
 			s.start();
+
+			Socket appSocket = new Socket("localhost", 5000);
+			AppUsage appusage = new AppUsage(soc);
+			appusage.start();
 		}
 		catch(Exception e)
 		{
