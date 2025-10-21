@@ -69,6 +69,9 @@ public class AppUsage extends Thread{
             DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(soc.getOutputStream()));
             dos.writeUTF(deviceID);
             dos.writeUTF(log.toString());
+            dos.writeUTF(log.getName());
+            dos.writeLong(log.getStartTime().getTime());
+            dos.writeLong(log.getEndTime().getTime());
             dos.flush();
 
             System.out.println("Da gui log " + log.toString());
