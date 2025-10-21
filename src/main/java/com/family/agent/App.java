@@ -1,9 +1,5 @@
 package com.family.agent;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.util.UUID;
-
 import com.family.agent.network.Uploader;
 
 /**
@@ -19,3 +15,5 @@ public class App
         u.start();
     }
 }
+
+
