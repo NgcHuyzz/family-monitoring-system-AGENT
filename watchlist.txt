@@ -1,0 +1,35 @@
+# =============================
+# DANH SÁCH TỪ KHÓA NHẠY CẢM
+# Dòng bắt đầu bằng # là comment, sẽ bị bỏ qua
+# =============================
+
+# Từ khóa liên quan tới bạo lực
+đánh nhau
+giết người
+bom
+dao
+súng
+
+# Từ khóa liên quan tới nội dung người lớn
+sex
+xxx
+nude
+18+
+
+# Từ khóa liên quan đến nghiện game / mạng xã hội
+game
+liên quân
+pubg
+free fire
+facebook
+tiktok
+youtube
+
+# Từ khóa liên quan tới hành vi tiêu cực
+tự tử
+trầm cảm
+bỏ nhà
+ghét học
+chán đời
+
+# Có thể thêm bao nhiêu tùy ý, mỗi dòng 1 từ
