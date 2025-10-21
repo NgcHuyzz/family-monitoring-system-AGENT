@@ -43,8 +43,7 @@ public class Screenshot extends Thread {
 			while(true)
 			{
 				try
-				{
-					
+				{				
 					long t0 = System.nanoTime();
 					ScreenshotModel sm = st.latestFrame;
 					if(sm != null && sm.getSequenceNum() != lastSeq)

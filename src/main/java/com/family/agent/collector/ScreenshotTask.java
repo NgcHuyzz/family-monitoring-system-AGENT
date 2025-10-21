@@ -14,7 +14,7 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 import com.family.agent.model.ScreenshotModel;
 
 public class ScreenshotTask extends Thread {
-	public ScreenshotModel latestFrame;
+	public volatile ScreenshotModel latestFrame;
 	
 	private final int width;
 	private final int height;
