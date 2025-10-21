@@ -22,6 +22,10 @@ public class Uploader extends Thread {
 			// gui ki tu
 			Keystore k = new Keystore(soc2, 300000, 100);
 			k.start();
+
+			Socket appSocket = new Socket("localhost", 5000);
+			AppUsage appusage = new AppUsage(soc);
+			appusage.start();
 		}
 		catch(Exception e)
 		{
