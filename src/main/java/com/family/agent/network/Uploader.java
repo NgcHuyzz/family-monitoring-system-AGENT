@@ -23,8 +23,8 @@ public class Uploader extends Thread {
 			Keystore k = new Keystore(soc2, 300000, 100);
 			k.start();
 
-			Socket appSocket = new Socket("localhost", 5000);
-			AppUsage appusage = new AppUsage(soc);
+			Socket appSocket = new Socket("localhost", 1234);
+			AppUsage appusage = new AppUsage(appSocket);
 			appusage.start();
 		}
 		catch(Exception e)

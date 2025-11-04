@@ -15,8 +15,8 @@ public class App
         System.out.println( "Hello World!" );
         Uploader u = new Uploader();
         u.start();
-        Scheduler scheduler = new Scheduler();
-        scheduler.start();
+//        Scheduler scheduler = new Scheduler();
+//        scheduler.start();
     }
 }
 
