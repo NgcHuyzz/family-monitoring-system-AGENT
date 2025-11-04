@@ -20,31 +20,45 @@ public class AppCollector implements Runnable {
 
     @Override
     public void run() {
-        String currentApp = getActiveWindowTitle();
+        while (true) {
+            try {
+                String currentApp = getActiveWindowTitle();
 
-        if (currentApp == null || currentApp.isEmpty()) {
-            System.out.println("Khong tim thay ung dung dang su dung");
-            return;
+                if (currentApp == null || currentApp.isEmpty()) {
+                    System.out.println("Khong tim thay ung dung dang su dung");
+                    Thread.sleep(3000);
+                    continue;
+                }
+
+                // lan dau khi chay
+                if (lastApp == null) {
+                    lastApp = currentApp;
+                    startTime = new Timestamp(System.currentTimeMillis());
+                    System.out.println("dang su dung " + lastApp);
+                    return;
+                }
+
+                // neu nguoi dung chuyen app khac
+                if (!currentApp.equals(lastApp)) {
+                    Timestamp endTime = new Timestamp(System.currentTimeMillis());
+                    LogEntry log = new LogEntry("app", lastApp, startTime, endTime);
+                    log.print();
+
+                    lastLog = log;
+
+                    lastApp = currentApp;
+                    startTime = new Timestamp(System.currentTimeMillis());
+                    System.out.println("Chuyen sang ung dung moi " + currentApp);
+                }
+
+                Thread.sleep(2000);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
 
-        // lan dau khi chay
-        if (lastApp == null) {
-            lastApp = currentApp;
-            startTime = new Timestamp(System.currentTimeMillis());
-            System.out.println("dang su dung " + lastApp);
-            return;
-        }
-
-        // neu nguoi dung chuyen app khac
-        if (!currentApp.equals(lastApp)) {
-            Timestamp endTime = new Timestamp(System.currentTimeMillis());
-            LogEntry log = new LogEntry("app", lastApp, startTime, endTime);
-            log.print();
-
-            lastApp = currentApp;
-            startTime = new Timestamp(System.currentTimeMillis());
-            System.out.println("Chuyen sang ung dung moi " + currentApp);
-        }
     }
 
     private String getActiveWindowTitle() {
@@ -86,4 +100,8 @@ public class AppCollector implements Runnable {
             return null;
         }
     }
+    public String getCurrentApp() {
+        return lastApp;
+    }
+
 }
