@@ -5,6 +5,9 @@ import com.family.agent.model.LogEntry;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.sql.Timestamp;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 //import com.sun.jna.Native;
 //import com.sun.jna.platform.win32.User32;
 //import com.sun.jna.platform.win32.WinDef;
@@ -96,6 +99,69 @@ public class AppCollector implements Runnable {
 
             return title;
         } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String getActiveProcessName() {
+        System.out.println("[AC] BẮT ĐẦU getActiveProcessName()");
+
+        try {
+            // --- Load resource ---
+            URL url = getClass().getClassLoader().getResource("get_active_process.ps1");
+            if (url == null) {
+                System.out.println("[AC] KHÔNG TÌM THẤY FILE get_active_process.ps1 TRONG RESOURCES");
+                return null;
+            }
+
+            // --- Convert URL -> file path chuẩn ---
+            String scriptPath = Paths.get(url.toURI()).toString();
+            System.out.println("[AC] scriptPath = " + scriptPath);
+
+            // --- Start PowerShell ---
+            ProcessBuilder pb = new ProcessBuilder(
+                    "powershell",
+                    "-NoProfile",
+                    "-ExecutionPolicy", "Bypass",
+                    "-File", scriptPath
+            );
+            pb.redirectErrorStream(false);
+            Process process = pb.start();
+
+            System.out.println("[AC] ĐÃ START PowerShell");
+
+            // --- Read stdout ---
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream(), "UTF-8")
+            );
+            StringBuilder output = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println("[AC][stdout] " + line);
+                output.append(line).append("\n");
+            }
+
+            // --- Read stderr ---
+            BufferedReader errReader = new BufferedReader(
+                    new InputStreamReader(process.getErrorStream(), "UTF-8")
+            );
+            String errLine;
+            while ((errLine = errReader.readLine()) != null) {
+                System.out.println("[AC][stderr] " + errLine);
+            }
+
+            int exitCode = process.waitFor();
+            System.out.println("[AC] exitCode = " + exitCode);
+
+            // --- Output ---
+            String processName = output.toString().trim();
+            System.out.println("[AC] processName = [" + processName + "]");
+
+            return processName.isEmpty() ? null : processName;
+
+        } catch (Exception e) {
+            System.out.println("[AC] EXCEPTION: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
