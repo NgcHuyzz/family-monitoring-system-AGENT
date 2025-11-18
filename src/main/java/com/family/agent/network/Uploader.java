@@ -32,6 +32,14 @@ public class Uploader extends Thread {
 			Socket soccmd = new Socket("localhost", 8888);
 			CommandListener commandListener = new CommandListener(soccmd);
 			commandListener.start();
+			
+			Socket soc3 = new Socket("localhost",4321);
+			Policy p = new Policy(soc3);
+			p.start();
+			
+			Socket soc4 = new Socket("localhost", 6969);
+			Alert a = new Alert(soc4);
+			a.start();
 		}
 		catch(Exception e)
 		{

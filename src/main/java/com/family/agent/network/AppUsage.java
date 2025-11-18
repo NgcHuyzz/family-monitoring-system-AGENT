@@ -49,12 +49,9 @@ public class AppUsage extends Thread{
                         now
                 );
                 sendLogTOServer(initialLog);
-                System.out.println("[Client] Đã gửi log ứng dụng ban đầu: " + currentApp);
             }
 
             LogEntry lastSent = null;
-
-            System.out.println("Bat dau log ung dung ");
 
             while (true)
             {
@@ -100,8 +97,6 @@ public class AppUsage extends Thread{
             dos.writeLong(log.getStartTime().getTime());
             dos.writeLong(log.getEndTime().getTime());
             dos.flush();
-
-            System.out.println("Da gui log " + log.changeToString());
         }
         catch (Exception e)
         {
