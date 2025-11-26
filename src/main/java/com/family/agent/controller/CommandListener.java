@@ -40,12 +40,12 @@ public class CommandListener extends Thread {
             
             while (true) {
                 String action = dis.readUTF();
-                System.out.println(new Timestamp(System.currentTimeMillis()));
 //                JSONObject json = new JSONObject(msg);
 //                String action = json.getString("action");   // chỉ cần action
 
                 switch (action) {
                     case "KILL_APP":
+                        System.out.println(new Timestamp(System.currentTimeMillis()));
                         System.out.println("[Agent] Executing KILL_APP");
                         SystemControl.KillActiveProcess();  // không cần target
                         break;
