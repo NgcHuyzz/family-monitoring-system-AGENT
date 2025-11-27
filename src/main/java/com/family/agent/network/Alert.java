@@ -30,7 +30,7 @@ public class Alert extends Thread {
 	public Alert(Socket soc)
 	{
 		this.soc = soc;
-		this.deviceID = getOrCreateDeviceID();
+		this.deviceID = getDeviceID();
 		try
 		{
 			this.policyConfig = PolicyEntry.loadFromFolder();
@@ -129,7 +129,7 @@ public class Alert extends Thread {
 		}
 	}
 	
-	private String getOrCreateDeviceID()
+	private String getDeviceID() 
 	{
 		try
 		{
@@ -139,15 +139,6 @@ public class Alert extends Thread {
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String id = br.readLine().trim();
 				br.close();
-				return id;
-			}
-			else
-			{
-				String id = UUID.randomUUID().toString();
-				FileWriter fw = new FileWriter(file);
-				fw.write(id);
-				fw.close();
-				
 				return id;
 			}
 		}

@@ -21,7 +21,7 @@ public class CommandListener extends Thread {
     private String deviceID;
     public CommandListener(Socket soc) {
         this.soc = soc;
-        this.deviceID = getOrCreateDeviceID();
+        this.deviceID = getDeviceID();
     }
 
     @Override
@@ -76,7 +76,7 @@ public class CommandListener extends Thread {
         }
     }
     
-    private String getOrCreateDeviceID()
+    private String getDeviceID() 
 	{
 		try
 		{
@@ -86,15 +86,6 @@ public class CommandListener extends Thread {
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String id = br.readLine().trim();
 				br.close();
-				return id;
-			}
-			else
-			{
-				String id = UUID.randomUUID().toString();
-				FileWriter fw = new FileWriter(file);
-				fw.write(id);
-				fw.close();
-				
 				return id;
 			}
 		}

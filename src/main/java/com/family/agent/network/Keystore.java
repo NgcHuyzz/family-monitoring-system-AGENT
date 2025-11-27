@@ -43,7 +43,7 @@ public class Keystore extends Thread {
 		this.soc = soc;
 		this.timeLimit = timeLimit;
 		this.numberLimit = NumberLimit;
-		this.deviceID = getOrCreateDeviceID();
+		this.deviceID = getDeviceID();
 	}
 	
 	public void run()
@@ -120,7 +120,7 @@ public class Keystore extends Thread {
 	
 	private void encryptAES(String plantText) throws Exception 
 	{
-		byte[] keyBytes = getOrCreateAES(KEY_FILE);
+		byte[] keyBytes = getAES(KEY_FILE);
 		SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
 		
 		iv = new byte[IV_LENGTH];
@@ -133,7 +133,7 @@ public class Keystore extends Thread {
 		textEnc = cipher.doFinal(plantText.getBytes(StandardCharsets.UTF_8));
 	}
 	
-	private byte[] getOrCreateAES(String fileName)
+	private byte[] getAES(String fileName)
 	{
 		File file = new File(fileName);
 		if(file.exists())
@@ -150,23 +150,23 @@ public class Keystore extends Thread {
 				
 			}			
 		}
-		else
-		{
-				byte[] key = new byte[16];
-				new SecureRandom().nextBytes(key);
-				
-				String base64 = Base64.getEncoder().encodeToString(key);
-				try (FileWriter fw = new FileWriter(file)) 
-				{
-		            fw.write(base64);
-		        }
-				catch(Exception e)
-				{
-					
-				}
-				return key;
-
-		}
+//		else
+//		{
+//				byte[] key = new byte[16];
+//				new SecureRandom().nextBytes(key);
+//				
+//				String base64 = Base64.getEncoder().encodeToString(key);
+//				try (FileWriter fw = new FileWriter(file)) 
+//				{
+//		            fw.write(base64);
+//		        }
+//				catch(Exception e)
+//				{
+//					
+//				}
+//				return key;
+//
+//		}
 		return null;
 	}
 	
@@ -240,7 +240,7 @@ public class Keystore extends Thread {
 		return keyEvents.get(keyEvents.size()-1).getTs();
 	}
 	
-	private String getOrCreateDeviceID() 
+	private String getDeviceID() 
 	{
 		try
 		{
@@ -250,15 +250,6 @@ public class Keystore extends Thread {
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String id = br.readLine().trim();
 				br.close();
-				return id;
-			}
-			else
-			{
-				String id = UUID.randomUUID().toString();
-				FileWriter fw = new FileWriter(file);
-				fw.write(id);
-				fw.close();
-				
 				return id;
 			}
 		}

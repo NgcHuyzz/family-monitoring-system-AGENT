@@ -20,7 +20,7 @@ public class AppUsage extends Thread{
     {
         this.soc = soc;
 //        this.log = log;
-        this.deviceID = getOrCreateDeviceID();
+        this.deviceID = getDeviceID();
     }
 
     @Override
@@ -134,33 +134,24 @@ public class AppUsage extends Thread{
 //            e.printStackTrace();
 //        }
     }
-    private String getOrCreateDeviceID()
-    {
-        try
-        {
-            File file = new File("deviceID.txt");
-            if(file.exists())
-            {
-                BufferedReader br = new BufferedReader(new FileReader(file));
-                String id = br.readLine().trim();
-                br.close();
-                return id;
-            }
-            else
-            {
-                String id = UUID.randomUUID().toString();
-                FileWriter fw = new FileWriter(file);
-                fw.write(id);
-                fw.close();
-
-                return id;
-            }
-        }
-        catch(Exception e)
-        {
-
-        }
-
-        return "unknown";
-    }
+    private String getDeviceID() 
+	{
+		try
+		{
+			File file = new File("deviceID.txt");
+			if(file.exists())
+			{
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				String id = br.readLine().trim();
+				br.close();
+				return id;
+			}
+		}
+		catch(Exception e)
+		{
+			
+		}
+		
+		return "unknown";
+	}
 }

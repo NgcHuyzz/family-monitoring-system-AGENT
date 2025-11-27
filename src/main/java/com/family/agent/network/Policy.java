@@ -23,7 +23,7 @@ public class Policy extends Thread {
 	public Policy(Socket soc)
 	{
 		this.soc = soc;
-		this.deviceID = getOrCreateDeviceID();
+		this.deviceID = getDeviceID();
 	}
 	
 	public void run()
@@ -126,7 +126,7 @@ public class Policy extends Thread {
 		}	
 	}
 	
-	private String getOrCreateDeviceID()
+	private String getDeviceID() 
 	{
 		try
 		{
@@ -136,15 +136,6 @@ public class Policy extends Thread {
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String id = br.readLine().trim();
 				br.close();
-				return id;
-			}
-			else
-			{
-				String id = UUID.randomUUID().toString();
-				FileWriter fw = new FileWriter(file);
-				fw.write(id);
-				fw.close();
-				
 				return id;
 			}
 		}

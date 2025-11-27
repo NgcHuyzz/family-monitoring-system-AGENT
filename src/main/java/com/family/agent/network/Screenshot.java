@@ -23,7 +23,7 @@ public class Screenshot extends Thread {
 	{
 		this.soc = soc;
 		this.timeSend = timeSend;
-		this.deviceID = getOrCreateDeviceID();
+		this.deviceID = getDeviceID();
 	}
 	public void run()
 	{
@@ -84,7 +84,7 @@ public class Screenshot extends Thread {
 		}
 	}
 	
-	private String getOrCreateDeviceID()
+	private String getDeviceID() 
 	{
 		try
 		{
@@ -94,15 +94,6 @@ public class Screenshot extends Thread {
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String id = br.readLine().trim();
 				br.close();
-				return id;
-			}
-			else
-			{
-				String id = UUID.randomUUID().toString();
-				FileWriter fw = new FileWriter(file);
-				fw.write(id);
-				fw.close();
-				
 				return id;
 			}
 		}
