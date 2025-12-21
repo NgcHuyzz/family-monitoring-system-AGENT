@@ -3,6 +3,7 @@ package com.family.agent.collector;
 import com.family.agent.model.LogEntry;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.net.URL;
@@ -38,7 +39,7 @@ public class AppCollector implements Runnable {
                     lastApp = currentApp;
                     startTime = new Timestamp(System.currentTimeMillis());
                     System.out.println("dang su dung " + lastApp);
-                    return;
+                    continue;
                 }
 
                 // neu nguoi dung chuyen app khac
@@ -73,31 +74,40 @@ public class AppCollector implements Runnable {
 //        return Native.toString(buffer);
         try {
             // Lấy đường dẫn tuyệt đối của file ps1 trong resources
-            String scriptPath = getClass()
-                    .getClassLoader()
-                    .getResource("get_active_window.ps1")
-                    .getPath()
-                    .replaceFirst("^/(.:/)", "$1"); // fix đường dẫn trên Windows
-
-            Process process = Runtime.getRuntime().exec(new String[]{
-                    "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", scriptPath
-            });
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            reader.close();
-
-            String title = output.toString().trim();
-            if (title.isEmpty()) {
-                System.out.println("[DEBUG] Không có output từ PowerShell");
+        	InputStream in = getClass().getClassLoader().getResourceAsStream("get_active_window.ps1");
+            if (in == null) {
+                System.out.println("[DEBUG] Không thấy get_active_window.ps1");
                 return null;
             }
 
-            return title;
+            // extract ra file tạm
+            java.nio.file.Path temp = java.nio.file.Files.createTempFile("active", ".ps1");
+            temp.toFile().deleteOnExit();
+            java.nio.file.Files.copy(in, temp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+            // powershell tuyệt đối
+            String pwsh = System.getenv("SystemRoot") + "\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
+
+            ProcessBuilder pb = new ProcessBuilder(
+                    pwsh, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", temp.toString()
+            );
+            pb.redirectErrorStream(true);
+            Process p = pb.start();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream(), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) sb.append(line).append("\n");
+
+            p.waitFor();
+            String result = sb.toString().trim();
+
+            if (result.isEmpty()) {
+                System.out.println("[DEBUG] PowerShell empty");
+                return null;
+            }
+            return result;
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -105,35 +115,30 @@ public class AppCollector implements Runnable {
     }
 
     public String getActiveProcessName() {
-        System.out.println("[AC] BẮT ĐẦU getActiveProcessName()");
-
+    	System.out.println("[AC] BẮT ĐẦU getActiveProcessName()");
         try {
-            // --- Load resource ---
             URL url = getClass().getClassLoader().getResource("get_active_process.ps1");
             if (url == null) {
                 System.out.println("[AC] KHÔNG TÌM THẤY FILE get_active_process.ps1 TRONG RESOURCES");
                 return null;
             }
 
-            // --- Convert URL -> file path chuẩn ---
-            String scriptPath = Paths.get(url.toURI()).toString();
-            System.out.println("[AC] scriptPath = " + scriptPath);
+            // Extract resource -> file tạm (dùng URL -> Path)
+            java.nio.file.Path temp = java.nio.file.Files.createTempFile("get_active_process", ".ps1");
+            temp.toFile().deleteOnExit();
+            java.nio.file.Files.copy(url.openStream(), temp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
-            // --- Start PowerShell ---
+            String pwsh = System.getenv("SystemRoot") + "\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
             ProcessBuilder pb = new ProcessBuilder(
-                    "powershell",
-                    "-NoProfile",
-                    "-ExecutionPolicy", "Bypass",
-                    "-File", scriptPath
+                    pwsh, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", temp.toString()
             );
-            pb.redirectErrorStream(false);
+            pb.redirectErrorStream(true);
             Process process = pb.start();
 
             System.out.println("[AC] ĐÃ START PowerShell");
 
-            // --- Read stdout ---
             BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream(), "UTF-8")
+                    new InputStreamReader(process.getInputStream(), java.nio.charset.StandardCharsets.UTF_8)
             );
             StringBuilder output = new StringBuilder();
             String line;
@@ -142,22 +147,11 @@ public class AppCollector implements Runnable {
                 output.append(line).append("\n");
             }
 
-            // --- Read stderr ---
-            BufferedReader errReader = new BufferedReader(
-                    new InputStreamReader(process.getErrorStream(), "UTF-8")
-            );
-            String errLine;
-            while ((errLine = errReader.readLine()) != null) {
-                System.out.println("[AC][stderr] " + errLine);
-            }
-
             int exitCode = process.waitFor();
             System.out.println("[AC] exitCode = " + exitCode);
 
-            // --- Output ---
             String processName = output.toString().trim();
             System.out.println("[AC] processName = [" + processName + "]");
-
             return processName.isEmpty() ? null : processName;
 
         } catch (Exception e) {

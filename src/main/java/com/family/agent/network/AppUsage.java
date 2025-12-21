@@ -2,8 +2,11 @@ package com.family.agent.network;
 
 import com.family.agent.collector.AppCollector;
 import com.family.agent.model.LogEntry;
+import com.family.agent.model.config;
 import com.family.agent.scheduler.Scheduler;
 import com.family.agent.util.AESUtil;
+import com.family.agent.util.ConfigLoader;
+import com.family.agent.util.FilePath;
 
 import java.io.*;
 import java.net.Socket;
@@ -20,7 +23,8 @@ public class AppUsage extends Thread{
     {
         this.soc = soc;
 //        this.log = log;
-        this.deviceID = getDeviceID();
+        config c = ConfigLoader.load();
+		this.deviceID = c.getDeviceId();
     }
 
     @Override
@@ -134,24 +138,4 @@ public class AppUsage extends Thread{
 //            e.printStackTrace();
 //        }
     }
-    private String getDeviceID() 
-	{
-		try
-		{
-			File file = new File("deviceID.txt");
-			if(file.exists())
-			{
-				BufferedReader br = new BufferedReader(new FileReader(file));
-				String id = br.readLine().trim();
-				br.close();
-				return id;
-			}
-		}
-		catch(Exception e)
-		{
-			
-		}
-		
-		return "unknown";
-	}
 }
