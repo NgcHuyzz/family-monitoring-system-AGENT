@@ -21,7 +21,7 @@ public class CommandListener extends Thread {
     private String deviceID;
     public CommandListener(Socket soc) {
         this.soc = soc;
-        this.deviceID = getOrCreateDeviceID();
+        this.deviceID = getDeviceID();
     }
 
     @Override
@@ -40,12 +40,12 @@ public class CommandListener extends Thread {
             
             while (true) {
                 String action = dis.readUTF();
-                System.out.println(new Timestamp(System.currentTimeMillis()));
 //                JSONObject json = new JSONObject(msg);
 //                String action = json.getString("action");   // chỉ cần action
 
                 switch (action) {
                     case "KILL_APP":
+                        System.out.println(new Timestamp(System.currentTimeMillis()));
                         System.out.println("[Agent] Executing KILL_APP");
                         SystemControl.KillActiveProcess();  // không cần target
                         break;
@@ -76,7 +76,7 @@ public class CommandListener extends Thread {
         }
     }
     
-    private String getOrCreateDeviceID()
+    private String getDeviceID() 
 	{
 		try
 		{
@@ -86,15 +86,6 @@ public class CommandListener extends Thread {
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String id = br.readLine().trim();
 				br.close();
-				return id;
-			}
-			else
-			{
-				String id = UUID.randomUUID().toString();
-				FileWriter fw = new FileWriter(file);
-				fw.write(id);
-				fw.close();
-				
 				return id;
 			}
 		}

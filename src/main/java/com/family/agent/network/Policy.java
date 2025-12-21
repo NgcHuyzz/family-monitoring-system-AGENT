@@ -9,11 +9,18 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.family.agent.model.config;
+import com.family.agent.util.ConfigLoader;
+import com.family.agent.util.FilePath;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Policy extends Thread {
@@ -23,7 +30,8 @@ public class Policy extends Thread {
 	public Policy(Socket soc)
 	{
 		this.soc = soc;
-		this.deviceID = getOrCreateDeviceID();
+		config c = ConfigLoader.load();
+		this.deviceID = c.getDeviceId();
 	}
 	
 	public void run()
@@ -34,6 +42,8 @@ public class Policy extends Thread {
 			
 			// gui ten thiet bi agent di
 			dos.writeUTF(deviceID);
+			dos.writeUTF("os.name");
+			dos.writeUTF(getIPv4());
 			dos.flush();
 			
 			DataInputStream dis = new DataInputStream(new BufferedInputStream(soc.getInputStream()));
@@ -69,8 +79,8 @@ public class Policy extends Thread {
 	{
 		try
 		{
-			File file = new File(fileName);
-	        BufferedWriter bw = new BufferedWriter(new FileWriter(fileName, false));
+			File file = FilePath.base().resolve(fileName).toFile();
+	        BufferedWriter bw = new BufferedWriter(new FileWriter(file, false));
 
 	        bw.write(content);
 	        bw.flush();
@@ -86,8 +96,8 @@ public class Policy extends Thread {
 	{
 		try
 		{
-			File file = new File(fileName);
-	        BufferedWriter bw = new BufferedWriter(new FileWriter(fileName, false));
+			File file = FilePath.base().resolve(fileName).toFile();
+	        BufferedWriter bw = new BufferedWriter(new FileWriter(file, false));
 
 	        for (Map.Entry mapElement : content.entrySet()) {
                 String key = (String)mapElement.getKey();
@@ -110,8 +120,8 @@ public class Policy extends Thread {
 	{
 		try
 		{
-			File file = new File(fileName);
-	        BufferedWriter bw = new BufferedWriter(new FileWriter(fileName, false));
+			File file = FilePath.base().resolve(fileName).toFile();
+	        BufferedWriter bw = new BufferedWriter(new FileWriter(file, false));
 
 	        for(String s : content)
         	{
@@ -126,33 +136,26 @@ public class Policy extends Thread {
 		}	
 	}
 	
-	private String getOrCreateDeviceID()
-	{
-		try
-		{
-			File file = new File("deviceID.txt");
-			if(file.exists())
-			{
-				BufferedReader br = new BufferedReader(new FileReader(file));
-				String id = br.readLine().trim();
-				br.close();
-				return id;
-			}
-			else
-			{
-				String id = UUID.randomUUID().toString();
-				FileWriter fw = new FileWriter(file);
-				fw.write(id);
-				fw.close();
-				
-				return id;
-			}
-		}
-		catch(Exception e)
-		{
-			
-		}
-		
-		return "unknown";
+	private String getIPv4() {
+	    try {
+	        Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+	        while (nets.hasMoreElements()) {
+	            NetworkInterface ni = nets.nextElement();
+
+	            // bỏ qua loopback & adapter ảo
+	            if (!ni.isUp() || ni.isLoopback() || ni.isVirtual()) continue;
+
+	            Enumeration<InetAddress> addrs = ni.getInetAddresses();
+	            while (addrs.hasMoreElements()) {
+	                InetAddress addr = addrs.nextElement();
+	                if (addr instanceof Inet4Address) {
+	                    return addr.getHostAddress();
+	                }
+	            }
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return "0.0.0.0";
 	}
 }

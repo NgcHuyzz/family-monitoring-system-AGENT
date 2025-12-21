@@ -21,13 +21,17 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.family.agent.collector.KeystoreTask;
 import com.family.agent.model.KeystoreModel;
+import com.family.agent.model.config;
 import com.family.agent.model.KeystoreModel.KeyEvent;
+import com.family.agent.util.ConfigLoader;
+import com.family.agent.util.FilePath;
 
 public class Keystore extends Thread {
 	private final long timeLimit;
 	private final long numberLimit;
 	private Socket soc;
 	private String deviceID;
+	private String keyValue;
 	
 	private byte[] textEnc;
 	private byte[] iv;
@@ -35,7 +39,6 @@ public class Keystore extends Thread {
 	private static String AES_ALGO = "AES/GCM/NoPadding";
 	private static int GCM_TAG_LENGTH = 128;
 	private static int IV_LENGTH = 12;
-	private static String KEY_FILE = "agent.key";
 	private static String WATCH_LIST_FILE = "keyword.txt";
 	
 	public Keystore(Socket soc, long timeLimit, long NumberLimit )
@@ -43,7 +46,9 @@ public class Keystore extends Thread {
 		this.soc = soc;
 		this.timeLimit = timeLimit;
 		this.numberLimit = NumberLimit;
-		this.deviceID = getOrCreateDeviceID();
+		config c = ConfigLoader.load();
+		this.deviceID = c.getDeviceId();
+		this.keyValue = c.getAgentKey();
 	}
 	
 	public void run()
@@ -120,7 +125,7 @@ public class Keystore extends Thread {
 	
 	private void encryptAES(String plantText) throws Exception 
 	{
-		byte[] keyBytes = getOrCreateAES(KEY_FILE);
+		byte[] keyBytes = getAES();
 		SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
 		
 		iv = new byte[IV_LENGTH];
@@ -133,48 +138,16 @@ public class Keystore extends Thread {
 		textEnc = cipher.doFinal(plantText.getBytes(StandardCharsets.UTF_8));
 	}
 	
-	private byte[] getOrCreateAES(String fileName)
+	private byte[] getAES()
 	{
-		File file = new File(fileName);
-		if(file.exists())
-		{
-			try(BufferedReader br = new BufferedReader(new FileReader(file)))
-			{
-				
-				String base64 = br.readLine();
-				
-				return Base64.getDecoder().decode(base64.trim());
-			}
-			catch(Exception e)
-			{
-				
-			}			
-		}
-		else
-		{
-				byte[] key = new byte[16];
-				new SecureRandom().nextBytes(key);
-				
-				String base64 = Base64.getEncoder().encodeToString(key);
-				try (FileWriter fw = new FileWriter(file)) 
-				{
-		            fw.write(base64);
-		        }
-				catch(Exception e)
-				{
-					
-				}
-				return key;
-
-		}
-		return null;
+		return Base64.getDecoder().decode(keyValue);
 	}
 	
 	private static List<String> loadWatchList(String path)
 	{
 		List<String> li = new ArrayList<String>();
 		
-		File file = new File(path);
+		File file = FilePath.base().resolve(path).toFile();;
 		if(!file.exists())
 			return li;
 		try(BufferedReader br = new BufferedReader(new FileReader(file)))
@@ -240,25 +213,16 @@ public class Keystore extends Thread {
 		return keyEvents.get(keyEvents.size()-1).getTs();
 	}
 	
-	private String getOrCreateDeviceID() 
+	private String getDeviceID() 
 	{
 		try
 		{
-			File file = new File("deviceID.txt");
+			File file = FilePath.base().resolve("deviceID.txt").toFile();
 			if(file.exists())
 			{
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String id = br.readLine().trim();
 				br.close();
-				return id;
-			}
-			else
-			{
-				String id = UUID.randomUUID().toString();
-				FileWriter fw = new FileWriter(file);
-				fw.write(id);
-				fw.close();
-				
 				return id;
 			}
 		}

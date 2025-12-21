@@ -1,8 +1,10 @@
-Add-Type -TypeDefinition @"
+# Lấy tên tiến trình của cửa sổ đang active (Chrome, eclipse, ...)
+
+Add-Type @"
 using System;
 using System.Runtime.InteropServices;
 
-public class WinAPI {
+public static class WinAPI {
     [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
 
@@ -12,13 +14,15 @@ public class WinAPI {
 "@
 
 $hWnd = [WinAPI]::GetForegroundWindow()
+if ($hWnd -eq [IntPtr]::Zero) { return }
 
-$processId = 0
-[WinAPI]::GetWindowThreadProcessId($hWnd, [ref]$processId) | Out-Null
+$pid = 0
+[void][WinAPI]::GetWindowThreadProcessId($hWnd, [ref]$pid)
+if ($pid -eq 0) { return }
 
-$proc = Get-Process -Id $processId -ErrorAction SilentlyContinue
-if ($proc) {
-    Write-Output $proc.ProcessName
-} else {
-    Write-Output "Unknown"
+try {
+    $proc = Get-Process -Id $pid -ErrorAction Stop
+    $proc.ProcessName
+} catch {
+    ""
 }

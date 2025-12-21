@@ -12,6 +12,9 @@ import java.util.UUID;
 
 import com.family.agent.collector.ScreenshotTask;
 import com.family.agent.model.ScreenshotModel;
+import com.family.agent.model.config;
+import com.family.agent.util.ConfigLoader;
+import com.family.agent.util.FilePath;
 
 public class Screenshot extends Thread {
 	
@@ -23,7 +26,8 @@ public class Screenshot extends Thread {
 	{
 		this.soc = soc;
 		this.timeSend = timeSend;
-		this.deviceID = getOrCreateDeviceID();
+		config c = ConfigLoader.load();
+		this.deviceID = c.getDeviceId();
 	}
 	public void run()
 	{
@@ -82,35 +86,5 @@ public class Screenshot extends Thread {
 				e.printStackTrace();
 			}
 		}
-	}
-	
-	private String getOrCreateDeviceID()
-	{
-		try
-		{
-			File file = new File("deviceID.txt");
-			if(file.exists())
-			{
-				BufferedReader br = new BufferedReader(new FileReader(file));
-				String id = br.readLine().trim();
-				br.close();
-				return id;
-			}
-			else
-			{
-				String id = UUID.randomUUID().toString();
-				FileWriter fw = new FileWriter(file);
-				fw.write(id);
-				fw.close();
-				
-				return id;
-			}
-		}
-		catch(Exception e)
-		{
-			
-		}
-		
-		return "unknown";
 	}
 }

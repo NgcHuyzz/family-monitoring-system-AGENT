@@ -16,7 +16,10 @@ import com.family.agent.collector.AppCollector;
 import com.family.agent.controller.PolicyChecker;
 import com.family.agent.model.LogEntry;
 import com.family.agent.model.PolicyEntry;
+import com.family.agent.model.config;
 import com.family.agent.scheduler.Scheduler;
+import com.family.agent.util.ConfigLoader;
+import com.family.agent.util.FilePath;
 
 public class Alert extends Thread {
 	private Socket soc;
@@ -30,7 +33,8 @@ public class Alert extends Thread {
 	public Alert(Socket soc)
 	{
 		this.soc = soc;
-		this.deviceID = getOrCreateDeviceID();
+		config c = ConfigLoader.load();
+		this.deviceID = c.getDeviceId();
 		try
 		{
 			this.policyConfig = PolicyEntry.loadFromFolder();
@@ -129,25 +133,16 @@ public class Alert extends Thread {
 		}
 	}
 	
-	private String getOrCreateDeviceID()
+	private String getDeviceID() 
 	{
 		try
 		{
-			File file = new File("deviceID.txt");
+			File file = FilePath.base().resolve("deviceID.txt").toFile();
 			if(file.exists())
 			{
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String id = br.readLine().trim();
 				br.close();
-				return id;
-			}
-			else
-			{
-				String id = UUID.randomUUID().toString();
-				FileWriter fw = new FileWriter(file);
-				fw.write(id);
-				fw.close();
-				
 				return id;
 			}
 		}

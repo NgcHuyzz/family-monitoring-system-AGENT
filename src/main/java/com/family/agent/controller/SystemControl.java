@@ -3,6 +3,7 @@ package com.family.agent.controller;
 import com.family.agent.collector.AppCollector;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 
 public class SystemControl {
     public static void KillActiveProcess()
@@ -32,7 +33,7 @@ public class SystemControl {
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
-
+            System.out.println(new Timestamp(System.currentTimeMillis()));
             System.out.println("da tat ung dung" + processName);
         } catch (Exception e)
         {
