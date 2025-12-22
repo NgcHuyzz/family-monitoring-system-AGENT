@@ -26,6 +26,7 @@ Source: "dist\agent.jar"; DestDir: "{#InstallDir}"; Flags: ignoreversion
 Source: "dist\run_agent.vbs"; DestDir: "{#InstallDir}"; Flags: ignoreversion
 Source: "dist\README.txt"; DestDir: "{#InstallDir}"; Flags: ignoreversion
 Source: "dist\jre\*"; DestDir: "{#InstallDir}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "dist\FamilyAgent.task.xml"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
 ; --- Copy config.json nằm cạnh file setup.exe vào ProgramData ---
@@ -33,9 +34,8 @@ Filename: "{cmd}"; \
   Parameters: "/C if exist ""{src}\config.json"" (copy /Y ""{src}\config.json"" ""{#DataDir}\config.json"") else (echo No config.json next to setup: {src})"; \
   Flags: runhidden
   
-; Đăng ký auto-start bằng Scheduled Task (chạy khi user đăng nhập)
 Filename: "schtasks.exe"; \
-  Parameters: "/Create /F /TN ""FamilyAgent"" /SC ONLOGON /RL HIGHEST /TR ""wscript.exe """"""{#InstallDir}\run_agent.vbs"""""" /DELAY 00:00:30"; \
+  Parameters: "/Create /F /TN ""FamilyAgent"" /XML ""{tmp}\FamilyAgent.task.xml"""; \
   Flags: runhidden
 
 ; Chạy ngay sau cài (để test)

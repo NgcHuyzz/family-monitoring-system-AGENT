@@ -11,17 +11,20 @@ public static class WinAPI {
     [DllImport("user32.dll")]
     public static extern int GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 }
-"@
+"@ -ErrorAction SilentlyContinue
 
 $hWnd = [WinAPI]::GetForegroundWindow()
 if ($hWnd -eq [IntPtr]::Zero) { return }
 
-$pid = 0
-[void][WinAPI]::GetWindowThreadProcessId($hWnd, [ref]$pid)
-if ($pid -eq 0) { return }
+# ❌ Không dùng $pid vì đụng $PID (read-only)
+$winPid = [uint32]0
+
+# Vì hàm đã khai báo "out uint processId" nên gọi trực tiếp kiểu out như này là đúng
+[void][WinAPI]::GetWindowThreadProcessId($hWnd, [ref]$winPid)
+if ($winPid -eq 0) { return }
 
 try {
-    $proc = Get-Process -Id $pid -ErrorAction Stop
+    $proc = Get-Process -Id $winPid -ErrorAction Stop
     $proc.ProcessName
 } catch {
     ""

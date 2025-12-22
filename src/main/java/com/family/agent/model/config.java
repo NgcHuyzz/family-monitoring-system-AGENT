@@ -1,20 +1,16 @@
 package com.family.agent.model;
 
 public class config {
-	private String serverUrl;
+	private String serverHost;
     private String agentKey;
     private String deviceId;
 
-    
-
-    public String getServerUrl() {
-		return serverUrl;
+	public String getServerHost() {
+		return serverHost;
 	}
-
-
-
-	public void setServerUrl(String serverUrl) {
-		this.serverUrl = serverUrl;
+	
+	public void setServerHost(String serverHost) {
+		this.serverHost = serverHost;
 	}
 
 
@@ -44,6 +40,6 @@ public class config {
 
 
 	@Override public String toString() {
-        return "Config{serverUrl=" + serverUrl + ", deviceId=" + deviceId + "}";
+        return "Config{serverHost=" + serverHost + ", deviceId=" + deviceId + "}";
     }
 }

@@ -8,6 +8,8 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
 
+import com.family.agent.util.FilePath;
+
 public class PolicyEntry {
 
     public static class QuietRule {
@@ -22,8 +24,13 @@ public class PolicyEntry {
         }
 
         public boolean match(DayOfWeek today, LocalTime now) {
-            if (today != this.day) return false;
-            return !now.isBefore(start) && !now.isAfter(end);
+        	if (today != this.day) return false;
+
+            if (!end.isBefore(start)) {
+                return !now.isBefore(start) && !now.isAfter(end);
+            }
+            
+            return !now.isBefore(start) || !now.isAfter(end);
         }
     }
 
@@ -40,7 +47,8 @@ public class PolicyEntry {
     public static PolicyEntry loadFromFolder() throws IOException {
         PolicyEntry ce = new PolicyEntry();
 
-        File fileAppWhite = new File("appWhite.txt");
+        File fileAppWhite = FilePath.base().resolve("appWhite.txt").toFile();
+
         if (fileAppWhite.exists()) {
         	BufferedReader br = new BufferedReader(new FileReader(fileAppWhite));
         	String line;
@@ -52,8 +60,8 @@ public class PolicyEntry {
             }
         	br.close();
         }
+        File fileDomain   = FilePath.base().resolve("domain.txt").toFile();
 
-        File fileDomain = new File("domain.txt");
         if (fileDomain.exists()) {
         	BufferedReader br = new BufferedReader(new FileReader(fileDomain));
             String line;
@@ -66,7 +74,7 @@ public class PolicyEntry {
             br.close();
         }
 
-        File fileQuiet = new File("quietHour.txt");
+        File fileQuiet    = FilePath.base().resolve("quietHour.txt").toFile();
         if (fileQuiet.exists()) {
         	BufferedReader br = new BufferedReader(new FileReader(fileQuiet));
             String line;
@@ -95,7 +103,8 @@ public class PolicyEntry {
             br.close();
         }
 
-        File fileQuote = new File("timeQuote.txt");
+
+        File fileQuote    = FilePath.base().resolve("timeQuote.txt").toFile();
         if (fileQuote.exists()) {
         	BufferedReader br = new BufferedReader(new FileReader(fileQuote));
         	 String line;

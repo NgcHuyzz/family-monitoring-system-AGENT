@@ -37,6 +37,7 @@ public class Alert extends Thread {
 		this.deviceID = c.getDeviceId();
 		try
 		{
+			Thread.sleep(10000);
 			this.policyConfig = PolicyEntry.loadFromFolder();
 			this.policyChecker = new PolicyChecker(policyConfig);			
 		}
