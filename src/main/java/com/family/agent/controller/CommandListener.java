@@ -2,6 +2,9 @@ package com.family.agent.controller;
 
 import org.json.JSONObject;
 
+import com.family.agent.model.config;
+import com.family.agent.util.ConfigLoader;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -21,7 +24,8 @@ public class CommandListener extends Thread {
     private String deviceID;
     public CommandListener(Socket soc) {
         this.soc = soc;
-        this.deviceID = getDeviceID();
+		config c = ConfigLoader.load();
+		this.deviceID = c.getDeviceId();
     }
 
     @Override
